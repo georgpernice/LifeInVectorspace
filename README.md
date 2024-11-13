@@ -14,7 +14,7 @@ I want for everyday life to represent each day as vector in n dimensional space 
 ## Result
 People can inspect there daily performance in a geometric way! 
 Similar vectors represent similar lifestyles
-
+![Demonstration of Monday and Tuesday Vector](./screenshot.png)
 ## Implementation
 
 none yet.
