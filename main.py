@@ -7,22 +7,23 @@ fig.tight_layout()
 ax = fig.add_subplot(111, projection="3d")
 ax.set_xlim(0, 2)
 ax.set_title(TITLE)
-ax.set_xlabel("x")
-ax.set_ylabel("y")
-ax.set_zlabel("z")
 
 
 class DayVector:
     """Describes a day of life."""
 
-    def __init__(self):
+    def __init__(self, name, color, deeds):
+
         self.dim_labels = []
         self.dim_values = []
         self.dim = 0
-        self.color = "yellow"
-        self.name = "default"
+        self.color = color
+        self.name = name
+        for key in deeds:
+            self.add_deed(key, deeds[key])
 
     def add_deed(self, label, value):
+        """Adds an entry to the day vector."""
         self.dim_labels.append(label)
         self.dim_values.append(value)
         self.dim += 1
@@ -44,7 +45,34 @@ class DayVector:
         for i in range(self.dim):
             self.dim_values[i] /= total
 
+    def get_base(self):
+        """Get the basis of the day vector."""
+        return self.dim_labels
+
+    def set_base(self, new_base):
+        """Set the basis of the day vector according to input base."""
+        # add deeds of new base to base
+        for label in new_base:
+            if label not in self.dim_labels:
+                self.dim_labels.append(label)
+                self.dim_values.append(0)
+                self.dim += 1
+        # remove deeds not in new base
+        for label in self.dim_labels:
+            if label not in new_base:
+                index = self.dim_labels.index(label)
+                self.dim_labels.pop(index)
+                self.dim_values.pop(index)
+                self.dim -= 1
+
+    def set_axes_labels_to_base(self, axis):
+        """Set the axes labels to the basis of the day vector."""
+        axis.set_xlabel(self.dim_labels[0])
+        axis.set_ylabel(self.dim_labels[1])
+        axis.set_zlabel(self.dim_labels[2])
+
     def print(self):
+        """Print the day vector to console."""
         output = ""
         output += "Day vector: transpose("
         for i in range(self.dim):
@@ -76,7 +104,7 @@ class DayVector:
             ec="black",
         )
         ax.annotate3D(
-            "point 1", (dim1, dim2, dim3), xytext=(3, 3), textcoords="offset points"
+            self.name, (dim1, dim2, dim3), xytext=(3, 3), textcoords="offset points"
         )
 
 
@@ -98,20 +126,12 @@ tuesday = {
     "relax": 1,
     "other": 1,
 }
-monday_vector = DayVector()
-for key in monday:
-    monday_vector.add_deed(key, monday[key])
-
-monday_vector.print()
-monday_vector.reduce_dim(3)
-monday_vector.print()
-
-
+tuesday_vector = DayVector("tuesday", "blue", monday)
+monday_vector = DayVector("monday", "yellow", tuesday)
+tuesday_vector.set_base(monday_vector.get_base())
+monday_vector.set_axes_labels_to_base(ax)
 monday_vector.plot(ax)
-tuesday_vector = DayVector()
-tuesday_vector.color = "blue"
-for key in tuesday:
-    tuesday_vector.add_deed(key, tuesday[key])
 tuesday_vector.plot(ax)
+
 
 plt.show()
